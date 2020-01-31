@@ -24,6 +24,10 @@ cl0 = np.array([reduced[i] for i in range(len(reduced)) if y[i]=="functional"])
 cl1 = np.array([reduced[i] for i in range(len(reduced)) if y[i]=="functional needs repair"])
 cl2 = np.array([reduced[i] for i in range(len(reduced)) if y[i]=="non functional"])
 
+print("Número de elementos de la clase 'functional' : " + str(len(cl0)))
+print("Número de elementos de la clase 'functional needs repair' : " + str(len(cl1)))
+print("Número de elementos de la clase 'non functional' : " + str(len(cl2)))
+
 plt.scatter(cl0[:,0], cl0[:,1], color = colors[0], label = "Functional")
 plt.scatter(cl1[:,0], cl1[:,1], color = colors[1], label = "Functional needs repair")
 plt.scatter(cl2[:,0], cl2[:,1], color = colors[2], label = "Non functional")
