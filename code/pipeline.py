@@ -13,8 +13,10 @@ import plotly
 from sklearn.model_selection import train_test_split
 from dml.lmnn import KLMNN
 from dml.nca import NCA
+from dml.lmnn import LMNN
 
 import autoencoder
+import autoencoder_denoising
 
 import numpy as np
 import pandas as pd
@@ -71,6 +73,12 @@ def Pipeline(X_train, y_train, X_test, n_dims=44):
     X_test = np.hstack((X_test_numeric, X2))
     print("Numero de features: " + str(len(X_train[0])))
 
+    '''
+    print("Reduccion de dimensionalidad con AutoEncoder...")
+    hid = [50,60,50]
+    X_train, X_test = autoencoder.fitTransform(X_train, X_test, 50, hid, bsize=32)
+    print("Numero de features: " + str(len(X_train[0])))
+    '''
 
     '''
     print("Reduccion de dimensionalidad con AutoEncoder...")
@@ -85,12 +93,18 @@ def Pipeline(X_train, y_train, X_test, n_dims=44):
     print("Numero de features: " + str(len(X_train[0])))
     '''
 
+
     print("IPF...")
     X_train, y_train = IPF(X_train, y_train)
     print("Numero de instancias: " + str(len(X_train)))
     print("Instancias por clase:")
     print(np.unique(y_train,return_counts=True))
 
+    '''
+    print("Denoising autoencoder...")
+    hid = [32,16,32]
+    X_train, X_test = autoencoder_denoising.fitTransform(X_train, X_test, 250, hid, bsize=32, kreg=None, areg=None)
+    '''
 
     '''
     print("AllKNN...")
@@ -110,7 +124,7 @@ def Pipeline(X_train, y_train, X_test, n_dims=44):
 
 
     print("SMOTE...")
-    X_train,y_train = SMOTE(sampling_strategy = {"functional needs repair": 5000, "non functional": 22500}, random_state=123456789, n_jobs=8, k_neighbors=7).fit_resample(X_train,y_train)
+    X_train,y_train = SMOTE(sampling_strategy = {"functional needs repair": 7500, "non functional": 22000}, random_state=123456789, n_jobs=8, k_neighbors=7).fit_resample(X_train,y_train)
     print("Numero de instancias: " + str(len(X_train)))
     print("Instancias por clase:")
     print(np.unique(y_train,return_counts=True))
@@ -141,7 +155,7 @@ def Pipeline(X_train, y_train, X_test, n_dims=44):
 
     '''
     print("EditedNearestNeighbours...")
-    X_train, y_train = EditedNearestNeighbours(sampling_strategy="all", n_neighbors=7, n_jobs=8).fit_resample(X_train, y_train)
+    X_train, y_train = EditedNearestNeighbours(sampling_strategy="not minority", n_neighbors=15, n_jobs=8, kind_sel="mode").fit_resample(X_train, y_train)
     print("Numero de instancias: " + str(len(X_train)))
     print("Instancias por clase:")
     print(np.unique(y_train,return_counts=True))
@@ -149,7 +163,7 @@ def Pipeline(X_train, y_train, X_test, n_dims=44):
 
     '''
     print("SSMA...")
-    selector = SSMA(n_neighbors=1, alpha=1, max_loop=100, initial_density=0.9).fit(X_train,y_train)
+    selector = SSMA(n_neighbors=1, alpha=0.95, max_loop=100, initial_density=0.9).fit(X_train,y_train)
     X_train = selector.X_
     y_train = selector.y_
     print("Numero de instancias: " + str(len(X_train)))
@@ -159,9 +173,9 @@ def Pipeline(X_train, y_train, X_test, n_dims=44):
 
     '''
     print("Generando la métrica con DML...")
-    train_set, _, train_labels, _ = train_test_split(X_train, y_train, train_size=0.25, random_state=123456789)
+    train_set, _, train_labels, _ = train_test_split(X_train, y_train, train_size=0.5, random_state=123456789)
     print("Tamaño del conjunto original: " + str(len(X_train)) + ", tamaño del train: " + str(len(train_set)))
-    dml = NCA().fit(train_set, train_labels)
+    dml = KLMNN().fit(train_set, train_labels)
     X_train = dml.transform(X_train)
     X_test = dml.transform(X_test)
     '''

@@ -290,7 +290,7 @@ class SSMA(InstanceReductionMixin):
         while (n < self.max_loop):
 
             print("Iteracion " + str(n) + "/" + str(self.max_loop) + ", mejor rendimiento: " + str(np.amax(self.evaluations)))
-            print("Longitud original: " + str(len(y)) + ", longitud actual: " + str(np.sum(self.chromosomes[np.argmax(self.evaluations)])))
+            print("Longitud original: " + str(len(y)) + ", longitud actual: " + str(int(np.sum(self.chromosomes[np.argmax(self.evaluations)]))))
 
             #print("Iteracion " + str(n) + "/" + str(self.max_loop) + ", mejor rendimiento: " + str(np.amax(self.evaluations)))
 
